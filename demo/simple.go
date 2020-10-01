@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"melato.org/export/command"
+	"melato.org/command"
 )
 
 type SimpleDemo struct {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"melato.org/export/command"
+	"melato.org/command"
 )
 
 func main() {

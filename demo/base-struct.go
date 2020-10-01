@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"melato.org/export/command"
+	"melato.org/command"
 )
 
 /** Example of single struct that defines a command with various options

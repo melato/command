@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 
-	"melato.org/export/reflx"
+	"melato.org/command/reflx"
 )
 
 type commandFlag struct {

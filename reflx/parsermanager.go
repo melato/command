@@ -24,19 +24,26 @@ type ParserManager interface {
 type parserManager struct {
 	typeParsers  map[reflect.Type]ParseFunc
 	namedParsers map[string]ParseFunc
+	kindParsers  map[reflect.Kind]ParseFunc
 }
 
 func NewParserManager() ParserManager {
 	var mgr parserManager
 	mgr.typeParsers = make(map[reflect.Type]ParseFunc)
-	mgr.typeParsers[reflect.TypeOf("")] = ParseString
-	mgr.typeParsers[reflect.TypeOf(int64(0))] = ParseInt
-	mgr.typeParsers[reflect.TypeOf(int32(0))] = ParseInt
-	mgr.typeParsers[reflect.TypeOf(int(0))] = ParseInt
-	mgr.typeParsers[reflect.TypeOf(float64(0))] = ParseFloat
-	mgr.typeParsers[reflect.TypeOf(float32(0))] = ParseFloat
-	mgr.typeParsers[reflect.TypeOf(false)] = ParseBool
 	mgr.namedParsers = make(map[string]ParseFunc)
+	mgr.kindParsers = make(map[reflect.Kind]ParseFunc)
+	mgr.kindParsers[reflect.String] = ParseString
+	mgr.kindParsers[reflect.Int64] = ParseInt
+	mgr.kindParsers[reflect.Int32] = ParseInt
+	mgr.kindParsers[reflect.Int] = ParseInt
+	mgr.kindParsers[reflect.Uint64] = ParseUint
+	mgr.kindParsers[reflect.Uint32] = ParseUint
+	mgr.kindParsers[reflect.Uint] = ParseUint
+	mgr.kindParsers[reflect.Float64] = ParseFloat
+	mgr.kindParsers[reflect.Float32] = ParseFloat
+	mgr.kindParsers[reflect.Complex64] = ParseComplex
+	mgr.kindParsers[reflect.Complex128] = ParseComplex
+	mgr.kindParsers[reflect.Bool] = ParseBool
 	return &mgr
 }
 
@@ -50,13 +57,17 @@ func (mgr *parserManager) SetNamedParser(name string, f ParseFunc) {
 
 func (mgr *parserManager) GetParserT(t reflect.Type) (ParseFunc, bool) {
 	parse, found := mgr.typeParsers[t]
+	if found {
+		return parse, true
+	}
+	parse, found = mgr.kindParsers[t.Kind()]
 	return parse, found
 }
 
 func (mgr *parserManager) GetParser(name string, t reflect.Type) (ParseFunc, error) {
 	parse, found := mgr.namedParsers[name]
 	if !found {
-		parse, found = mgr.typeParsers[t]
+		parse, found = mgr.GetParserT(t)
 	}
 	if !found {
 		return nil, errors.New("no parser for " + name + " (" + t.Name() + ")")

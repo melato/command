@@ -7,10 +7,20 @@ import (
 )
 
 type App struct {
+	S string `name:"s" usage:"example flag"`
+}
+
+func (t *App) Init() error {
+	t.S = "Example"
+	return nil
+}
+
+func (t *App) Configured() error {
+	return nil
 }
 
 func (t *App) Run(args []string) error {
-	fmt.Println(args)
+	fmt.Println(t.S, args)
 	return nil
 }
 

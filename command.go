@@ -276,11 +276,14 @@ func runCommand(name string, cmd Command, args []string, ancestors []*commandInf
 	return nil
 }
 
-func Main(cmd Command) {
-	name := filepath.Base(os.Args[0])
-	err := runCommand(name, cmd, os.Args[1:], nil)
+func ProcessError(err error) {
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func Main(cmd Command) {
+	name := filepath.Base(os.Args[0])
+	ProcessError(runCommand(name, cmd, os.Args[1:], nil))
 }

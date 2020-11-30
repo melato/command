@@ -102,6 +102,12 @@ func (t *SimpleCommand) Add(name string, method func([]string) error, short stri
 	return t.Command(name).RunMethodArgs(method).Short(short)
 }
 
+/** Add a subcommand
+ */
+func (t *SimpleCommand) AddCommand(name string, cmd Command) {
+	t.Commands()[name] = cmd
+}
+
 func (t *SimpleCommand) Run(args []string) error {
 	return t.runMethod(args)
 }

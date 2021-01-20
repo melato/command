@@ -248,12 +248,6 @@ func runCommand(name string, cmd Command, args []string, ancestors []*commandInf
 		os.Exit(0)
 	}
 
-	// we may want to defer calling Configured until all the subcommands flags have been parsed and set
-	err = cmd.Configured()
-	if err != nil {
-		return err
-	}
-
 	args2 := fs.Args()
 	if len(commands) > 0 {
 		if len(args2) > 0 {
@@ -271,6 +265,13 @@ func runCommand(name string, cmd Command, args []string, ancestors []*commandInf
 			os.Exit(0)
 		}
 	} else {
+		// call all command-chain Configured() methods just before Run()
+		for _, a := range ancestors {
+			err := a.Command.Configured()
+			if err != nil {
+				return err
+			}
+		}
 		return cmd.Run(args2)
 	}
 	return nil

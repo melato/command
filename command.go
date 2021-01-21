@@ -47,16 +47,16 @@ type Command interface {
 Documentation for the command.
 */
 type Usage struct {
-	/** A generic representation of the command-line arguments, without any options, e.g. "<arg1> <arg2>"  */
-	Use string
-
 	/** A one-line description of the command, shown in lists of commands */
 	Short string
+
+	/** A generic representation of the command-line arguments, without any options, e.g. "<arg1> <arg2>"  */
+	Use string
 
 	/** A longer description shown in the help for a single command */
 	Long string
 
-	Example string
+	Examples []string
 }
 
 type commandInfo struct {
@@ -182,10 +182,12 @@ func showUsage(levels []*commandInfo, commands map[string]Command) {
 
 		fmt.Println(cargs...)
 
-		if len(u.Example) > 0 {
+		if len(u.Examples) > 0 {
 			fmt.Println()
 			fmt.Println("Examples:")
-			fmt.Println(strings.TrimSpace(u.Example))
+			for _, ex := range u.Examples {
+				fmt.Printf("  %s %s\n", levels[0].Name, ex)
+			}
 		}
 	}
 	for n, i := len(levels), len(levels)-1; i >= 0; i-- {

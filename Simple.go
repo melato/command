@@ -35,7 +35,7 @@ func (t *SimpleCommand) Long(s string) *SimpleCommand {
 	return t
 }
 func (t *SimpleCommand) Example(s string) *SimpleCommand {
-	t.U.Example = s
+	t.U.Examples = append(t.U.Examples, s)
 	return t
 }
 

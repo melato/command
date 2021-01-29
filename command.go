@@ -220,6 +220,7 @@ func showUsage(levels []*commandInfo, commands map[string]Command) {
 func runCommand(name string, cmd Command, args []string, ancestors []*commandInfo) error {
 	var err error
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
+	fs.SetOutput(os.Stdout)
 	ci := createCommandInfo(name, cmd)
 	err = ci.setFlags(fs)
 	if err != nil {

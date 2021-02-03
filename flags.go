@@ -30,6 +30,10 @@ type flagPrefix struct {
 	Usage string
 }
 
+func (t *flagPrefix) String() string {
+	return fmt.Sprintf(`name="%s" usage="%s"`, t.Name, t.Usage)
+}
+
 func (t *flagPrefix) ComposeName(name string) string {
 	if t == nil || t.Name == "" {
 		return name
@@ -54,10 +58,9 @@ func (t *flagPrefix) Append(p *flagPrefix) *flagPrefix {
 	if p.Name == "" {
 		return t
 	}
-	var result flagPrefix
-	result.Name = t.ComposeName(p.Name)
-	result.Usage = t.ComposeUsage(p.Usage)
-	return &result
+	return &flagPrefix{
+		Name:  t.ComposeName(p.Name),
+		Usage: t.ComposeUsage(p.Usage)}
 }
 
 func extractFlags(cmd interface{}, prefix *flagPrefix) []*commandFlag {

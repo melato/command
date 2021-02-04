@@ -210,12 +210,16 @@ func showUsage(levels []*commandInfo, commands map[string]Command) {
 			ar = append(ar, ci)
 		}
 		sort.Sort(commandInfoSorter(ar))
-		rows := make([][]string, 0, len(ar))
+		var nameLen int
 		for _, ci := range ar {
-			rows = append(rows, []string{ci.Name, ci.Usage.Short})
+			w := len(ci.Name)
+			if w > nameLen {
+				nameLen = w
+			}
 		}
-		table := &FixedColumnsTable{Prefix: "  ", Separator: " "}
-		table.Print(rows)
+		for _, ci := range ar {
+			fmt.Printf("  %-*s  %s\n", nameLen, ci.Name, ci.Usage.Short)
+		}
 	}
 }
 

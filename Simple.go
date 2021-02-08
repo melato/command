@@ -1,11 +1,17 @@
 // Package command imlements a command line interface that uses reflection
 // to define command flags (options) from the fields of any user-specified struct.
 //
+// If a field is a struct or a pointer to a struct, that struct's fields are also added as flags, and so on.
+//
+// The optional "name" and "usage" field tags are used to set the flag name and usage.
+//
+// The flag default value is any non-zero existing flag value, which can be set from an optional Init() method.
+//
 // A command has a hierarchy of sub-commands.  Each sub-command can have additional flags.
 //
 // At each level, optional Init() and Configured() methods can do initialization and validation.
 //
-// command uses the Go flags package.
+// command uses the Go flags package for command-line processing.
 package command
 
 import (
@@ -85,30 +91,27 @@ func (t *SimpleCommand) flags() interface{} {
 	return t.commandFlags
 }
 
-/** Specify which method to run when executing this command */
+// Specify the method to run when executing this command.  The command arguments are passed to the method.
 func (t *SimpleCommand) RunMethodArgs(method func([]string) error) *SimpleCommand {
 	t.runMethod = method
 	return t
 }
 
-/** Specify which method to run when executing this command */
-func (t *SimpleCommand) RunMethod(method func()) *SimpleCommand {
-	return t.RunMethodArgs(func(args []string) error {
-		if len(args) != 0 {
-			return errors.New("unrecognized arguments: " + strings.Join(args, " "))
-		}
-		method()
-		return nil
-	})
-}
-
-/** Specify which method to run when executing this command */
+// Specify the method to run when executing this command.  It is an error if any arguments are passed to the command.
 func (t *SimpleCommand) RunMethodE(method func() error) *SimpleCommand {
 	return t.RunMethodArgs(func(args []string) error {
 		if len(args) != 0 {
 			return errors.New("unrecognized arguments: " + strings.Join(args, " "))
 		}
 		return method()
+	})
+}
+
+// RunMethod is like RunMethodE, but does not return an error.
+func (t *SimpleCommand) RunMethod(method func()) *SimpleCommand {
+	return t.RunMethodE(func() error {
+		method()
+		return nil
 	})
 }
 
@@ -119,8 +122,7 @@ func (t *SimpleCommand) commands() map[string]command {
 	return t.subcommands
 }
 
-/** Create a subcommand and add it to the command.  Return the sub-command.
- */
+// Command creates a subcommand and adds it to this command.  It returns the sub-command.
 func (t *SimpleCommand) Command(name string) *SimpleCommand {
 	c := &SimpleCommand{}
 	t.commands()[name] = c
@@ -139,8 +141,9 @@ func (t *SimpleCommand) init() error {
 	return nil
 }
 
-/** Disable calling of Configured() for flags of this or any ancestor command.
-  Use for special commands like "version" that should not require the user to enter correct options. */
+// Disable calling of Configured() for flags of this or any ancestor command.
+//
+// Use for special commands like "version" that should not require the user to enter correct options. */
 func (t *SimpleCommand) NoConfig() *SimpleCommand {
 	t.noConfig = true
 	return t

@@ -9,8 +9,6 @@ import (
 	"strings"
 )
 
-var cleanupFunctions []func()
-
 /** A Command is a struct type, whose fields are used to specify the CLI flags.
 Flags are fields that are primitive types (string, int, bool, etc.) or slices of primitive types.
 The name of the flag is specified by the "name" tag, or by the name of the field, in lowercase.
@@ -34,6 +32,8 @@ type command interface {
 	configured() error
 
 	enabledConfig() bool
+
+	cleanup() error
 
 	/** Returns usage information
 	 */
@@ -277,44 +277,40 @@ func runCommand(name string, cmd command, args []string, ancestors []*commandInf
 	} else {
 		// call all command-chain Configured() methods just before Run()
 		if cmd.enabledConfig() {
-			for _, a := range ancestors {
+			for i, a := range ancestors {
 				err := a.Command.configured()
 				if err != nil {
+					cleanup(ancestors[0 : i+1])
 					return err
 				}
 			}
 		}
-		return cmd.run(args2)
+		err := cmd.run(args2)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+		}
+		cleanup(ancestors)
+		if err != nil {
+			exit(1)
+		}
+		return nil
 	}
 	return nil
 }
 
-func processError(err error) {
-	if err != nil {
-		fmt.Println(err)
-		exit(1)
-	}
-}
-
 func Main(cmd command) {
 	name := filepath.Base(os.Args[0])
-	processError(runCommand(name, cmd, os.Args[1:], nil))
-}
-
-/** Add a function that will be called whenever command calls os.Exit().  Multiple functions may be added.  */
-func AddCleanup(f func()) {
-	cleanupFunctions = append(cleanupFunctions, f)
+	runCommand(name, cmd, os.Args[1:], nil)
 }
 
 func exit(code int) {
-	cleanup()
 	os.Exit(code)
 }
 
-func cleanup() {
-	n := len(cleanupFunctions)
-	for i := n - 1; i >= 0; i-- {
-		cleanupFunctions[i]()
+func cleanup(commands []*commandInfo) {
+	for j := len(commands) - 1; j >= 0; j-- {
+		if err2 := commands[j].Command.cleanup(); err2 != nil {
+			fmt.Fprintf(os.Stderr, "%v\n", err2)
+		}
 	}
-	cleanupFunctions = nil
 }

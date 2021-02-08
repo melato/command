@@ -37,6 +37,17 @@ type Configured interface {
 	Configured() error
 }
 
+// Closer defines a Close() method that is called after the command runs, to do any cleanup.
+//
+// If the flags struct implements Closer, its Close() method will be called.
+//
+// Close will be called even if Configured() or the command return an error.
+//
+// This is meant to be used in situations where a Configured() method creates a temporary file, which should be deleted when the program exits.
+type Closer interface {
+	Close() error
+}
+
 // SimpleCommand defines a CLI command.
 //
 // Command flags are specified by Flags().
@@ -157,6 +168,14 @@ func (t *SimpleCommand) configured() error {
 	f, ok := t.commandFlags.(Configured)
 	if ok {
 		return f.Configured()
+	}
+	return nil
+}
+
+func (t *SimpleCommand) cleanup() error {
+	f, ok := t.commandFlags.(Closer)
+	if ok {
+		return f.Close()
 	}
 	return nil
 }

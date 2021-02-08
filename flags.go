@@ -63,11 +63,14 @@ func (t *flagPrefix) Append(p *flagPrefix) *flagPrefix {
 		Usage: t.ComposeUsage(p.Usage)}
 }
 
-func extractFlags(cmd interface{}, prefix *flagPrefix) []*commandFlag {
-	var cmdType reflect.Type = reflect.TypeOf(cmd)
+func extractFlags(cmdFlags interface{}, prefix *flagPrefix) []*commandFlag {
+	if cmdFlags == nil {
+		return nil
+	}
+	var cmdType reflect.Type = reflect.TypeOf(cmdFlags)
 	//fmt.Println("extractFlags cmdType", cmdType)
 	var t reflect.Type = cmdType.Elem()
-	var value reflect.Value = reflect.ValueOf(cmd).Elem()
+	var value reflect.Value = reflect.ValueOf(cmdFlags).Elem()
 	return extractFlagsV(value, t, prefix)
 }
 
@@ -101,7 +104,7 @@ func extractFlagsV(value reflect.Value, t reflect.Type, prefix *flagPrefix) []*c
 		}
 		fPrefix := &flagPrefix{Name: "", Usage: field.Tag.Get("usage")}
 		if len(names) == 0 {
-			names = append(names, CreateFlagName(field.Name))
+			names = append(names, createFlagName(field.Name))
 		} else {
 			fPrefix.Name = names[0]
 		}

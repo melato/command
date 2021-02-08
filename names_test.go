@@ -6,7 +6,7 @@ import (
 )
 
 func assertQuote(t *testing.T, expected, s string) {
-	q := Quote(s)
+	q := quote(s)
 	if expected != q {
 		fmt.Println("quote failed s=" + s + " Quote(s)=" + q)
 		t.Fail()
@@ -14,7 +14,7 @@ func assertQuote(t *testing.T, expected, s string) {
 }
 
 func verifyFlagName(t *testing.T, original, expected string) {
-	name := CreateFlagName(original)
+	name := createFlagName(original)
 	if expected != name {
 		t.Errorf("%s -> %s, expected %s", original, name, expected)
 	}

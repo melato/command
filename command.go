@@ -1,6 +1,3 @@
-/**
-  Provides a simple flag-based command line interface (CLI) that uses reflection to define flags and their default values from struct fields.
-*/
 package command
 
 import (
@@ -22,33 +19,37 @@ The usage string of the flag is specified by the "usage" tag.
 The usage string of the whole command is taken from the "usage" tag of an exported command field of type Usage.
 */
 
-type Command interface {
+type command interface {
 	/** run the command.
 	 */
-	Run(args []string) error
+	run(args []string) error
 
 	/** Called before any other method, as a constructor
 	It may set default values, which are shown in the usage help.
 	*/
-	Init() error
+	init() error
 
 	/** Called after flags have been applied and there are no flag errors, and the help flag is not present.
 	Do not setup sub-commands here, because they may be used from the help, before Configured() is called.*/
-	Configured() error
+	configured() error
+
+	enabledConfig() bool
 
 	/** Returns usage information
 	 */
-	Usage() *Usage
+	usage() *usage
+
+	flags() interface{}
 
 	/** Return the subcommands.  Flag values have been applied.
 	Configured() may or may not have been called. */
-	Commands() map[string]Command
+	commands() map[string]command
 }
 
 /**
 Documentation for the command.
 */
-type Usage struct {
+type usage struct {
 	/** A one-line description of the command, shown in lists of commands */
 	Short string
 
@@ -63,8 +64,8 @@ type Usage struct {
 
 type commandInfo struct {
 	Name           string
-	Command        Command
-	Usage          Usage
+	Command        command
+	Usage          usage
 	Flags          []*commandFlag
 	extractedFlags bool
 	FlagSet        *flag.FlagSet
@@ -75,13 +76,13 @@ func (t *commandInfo) Init() error {
 		return nil
 	}
 	t.extractedFlags = true
-	err := t.Command.Init()
+	err := t.Command.init()
 	if err != nil {
 		return err
 	}
 	// extractFlags must be called after Command.Init(),
 	// because Command.Init may create flags by assigning values to struct pointers
-	t.Flags = extractFlags(t.Command, &flagPrefix{})
+	t.Flags = extractFlags(t.Command.flags(), &flagPrefix{})
 	return nil
 }
 
@@ -108,9 +109,9 @@ func (t commandInfoSorter) Less(i, j int) bool {
 	return strings.Compare(x.Name, y.Name) < 0
 }
 
-func createCommandInfo(name string, cmd Command) *commandInfo {
+func createCommandInfo(name string, cmd command) *commandInfo {
 	c := &commandInfo{Name: name, Command: cmd}
-	usage := cmd.Usage()
+	usage := cmd.usage()
 	if usage != nil {
 		c.Usage = *usage
 	}
@@ -150,7 +151,7 @@ func (u *commandInfo) optionsString(i, n int) string {
 	return options
 }
 
-func showUsage(levels []*commandInfo, commands map[string]Command) {
+func showUsage(levels []*commandInfo, commands map[string]command) {
 	var last *commandInfo
 	if len(levels) > 0 {
 		last = levels[len(levels)-1]
@@ -223,7 +224,7 @@ func showUsage(levels []*commandInfo, commands map[string]Command) {
 	}
 }
 
-func runCommand(name string, cmd Command, args []string, ancestors []*commandInfo) error {
+func runCommand(name string, cmd command, args []string, ancestors []*commandInfo) error {
 	var err error
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
 	fs.SetOutput(os.Stdout)
@@ -245,7 +246,7 @@ func runCommand(name string, cmd Command, args []string, ancestors []*commandInf
 	err = fs.Parse(args)
 
 	ancestors = append(ancestors, ci)
-	var commands map[string]Command = cmd.Commands()
+	var commands map[string]command = cmd.commands()
 
 	if err != nil && err != flag.ErrHelp {
 		fmt.Println(err)
@@ -275,27 +276,29 @@ func runCommand(name string, cmd Command, args []string, ancestors []*commandInf
 		}
 	} else {
 		// call all command-chain Configured() methods just before Run()
-		for _, a := range ancestors {
-			err := a.Command.Configured()
-			if err != nil {
-				return err
+		if cmd.enabledConfig() {
+			for _, a := range ancestors {
+				err := a.Command.configured()
+				if err != nil {
+					return err
+				}
 			}
 		}
-		return cmd.Run(args2)
+		return cmd.run(args2)
 	}
 	return nil
 }
 
-func ProcessError(err error) {
+func processError(err error) {
 	if err != nil {
 		fmt.Println(err)
 		exit(1)
 	}
 }
 
-func Main(cmd Command) {
+func Main(cmd command) {
 	name := filepath.Base(os.Args[0])
-	ProcessError(runCommand(name, cmd, os.Args[1:], nil))
+	processError(runCommand(name, cmd, os.Args[1:], nil))
 }
 
 /** Add a function that will be called whenever command calls os.Exit().  Multiple functions may be added.  */
@@ -309,8 +312,9 @@ func exit(code int) {
 }
 
 func cleanup() {
-	for _, f := range cleanupFunctions {
-		f()
+	n := len(cleanupFunctions)
+	for i := n - 1; i >= 0; i-- {
+		cleanupFunctions[i]()
 	}
 	cleanupFunctions = nil
 }

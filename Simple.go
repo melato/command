@@ -1,3 +1,11 @@
+// Package command imlements a command line interface that uses reflection
+// to define command flags (options) from the fields of any user-specified struct.
+//
+// A command has a hierarchy of sub-commands.  Each sub-command can have additional flags.
+//
+// At each level, optional Init() and Configured() methods can do initialization and validation.
+//
+// command uses the Go flags package.
 package command
 
 import (
@@ -5,47 +13,76 @@ import (
 	"strings"
 )
 
+// Init  is called before any other method, as a constructor.
+//
+// It typically sets default values for flags, which are also shown in the usage help.
+//
+// If it returns an error, the command is not run, and the error is reported as the program's error.
 type Init interface {
 	Init() error
 }
 
+// Configured is called just before running the command, after flags have been set.
+//
+// The Configured() methods of any ancestor commands, are called in order, from the root command to the command that is about to run.
+//
+// If Configured() returns an error, the command does not run, and the error is reported as the program's error.
 type Configured interface {
 	Configured() error
 }
 
-/** SimpleCommand - a command with no flags that can be defined in a single line with the Add() method. */
+// SimpleCommand defines a CLI command.
+//
+// Command flags are specified by Flags().
+//
+// The method to run is specified by one of the RunMethod... calls.
+//
+// Most methods return the command, so they can be chained together to configure the command.
 type SimpleCommand struct {
-	Base
-	runMethod    func([]string) error `name:"-"`
-	configured   func() error         `name:"-"`
-	U            Usage                `name:"-"`
-	CommandFlags interface{}
+	subcommands  map[string]command
+	runMethod    func([]string) error
+	u            usage
+	commandFlags interface{} // The argument that was passed to the Flags() method.  This is meant for internal use.
+	noConfig     bool
 }
 
-func (t *SimpleCommand) Use(s string) *SimpleCommand {
-	t.U.Use = s
-	return t
-}
-func (t *SimpleCommand) Short(s string) *SimpleCommand {
-	t.U.Short = s
-	return t
-}
-func (t *SimpleCommand) Long(s string) *SimpleCommand {
-	t.U.Long = s
-	return t
-}
-func (t *SimpleCommand) Example(s string) *SimpleCommand {
-	t.U.Examples = append(t.U.Examples, s)
+// A generic representation of the command-line arguments, without any options, e.g. "<arg1> <arg2>"
+func (t *SimpleCommand) Use(commandLineUsage string) *SimpleCommand {
+	t.u.Use = commandLineUsage
 	return t
 }
 
-/** Specify a struct that defines command flags.  The structure is filled with the parsed flags.
-If the struct implements the Init() or Configured() interfaces, the Init() and/or Configured()
-methods are called as the command Init(), Configured().
-*/
+// A one-line description of the command, shown in lists of commands
+func (t *SimpleCommand) Short(shortDescription string) *SimpleCommand {
+	t.u.Short = shortDescription
+	return t
+}
+
+// A longer description shown in the help for a single command
+func (t *SimpleCommand) Long(longDescription string) *SimpleCommand {
+	t.u.Long = longDescription
+	return t
+}
+
+// A usage example, shown in the help for a single command.  May be called multiple times to add examples.
+func (t *SimpleCommand) Example(example string) *SimpleCommand {
+	t.u.Examples = append(t.u.Examples, example)
+	return t
+}
+
+// Flags specifies a pointer to a struct that defines command flags.
+//
+// The struct fields are set with the parsed flags.
+//
+// If the struct implements the Init() or Configured() interfaces,
+// flags.Init() and flags.Configured() are called as specified in the interface documentation.
 func (t *SimpleCommand) Flags(flags interface{}) *SimpleCommand {
-	t.CommandFlags = flags
+	t.commandFlags = flags
 	return t
+}
+
+func (t *SimpleCommand) flags() interface{} {
+	return t.commandFlags
 }
 
 /** Specify which method to run when executing this command */
@@ -75,62 +112,52 @@ func (t *SimpleCommand) RunMethodE(method func() error) *SimpleCommand {
 	})
 }
 
-/** Specify which method to run when executing this command */
-func (t *SimpleCommand) Method(method func([]string) error) *SimpleCommand {
-	return t.RunMethodArgs(method)
+func (t *SimpleCommand) commands() map[string]command {
+	if t.subcommands == nil {
+		t.subcommands = make(map[string]command)
+	}
+	return t.subcommands
 }
 
-/** Specify which method to run after configuration.
-  Consider using Flags() is called with a Configured() interface instead.
-*/
-func (t *SimpleCommand) ConfiguredMethod(method func() error) *SimpleCommand {
-	t.configured = method
-	return t
-}
-
-/** Add a subcommand
+/** Create a subcommand and add it to the command.  Return the sub-command.
  */
 func (t *SimpleCommand) Command(name string) *SimpleCommand {
 	c := &SimpleCommand{}
-	t.Commands()[name] = c
+	t.commands()[name] = c
 	return c
 }
 
-/** Add a subcommand
- */
-func (t *SimpleCommand) Add(name string, method func([]string) error, short string) *SimpleCommand {
-	return t.Command(name).RunMethodArgs(method).Short(short)
-}
-
-/** Add a subcommand
- */
-func (t *SimpleCommand) AddCommand(name string, cmd Command) {
-	t.Commands()[name] = cmd
-}
-
-func (t *SimpleCommand) Run(args []string) error {
+func (t *SimpleCommand) run(args []string) error {
 	return t.runMethod(args)
 }
 
-func (t *SimpleCommand) Init() error {
-	f, ok := t.CommandFlags.(Init)
+func (t *SimpleCommand) init() error {
+	f, ok := t.commandFlags.(Init)
 	if ok {
 		return f.Init()
 	}
 	return nil
 }
 
-func (t *SimpleCommand) Configured() error {
-	if t.configured != nil {
-		return t.configured()
-	}
-	f, ok := t.CommandFlags.(Configured)
+/** Disable calling of Configured() for flags of this or any ancestor command.
+  Use for special commands like "version" that should not require the user to enter correct options. */
+func (t *SimpleCommand) NoConfig() *SimpleCommand {
+	t.noConfig = true
+	return t
+}
+
+func (t *SimpleCommand) enabledConfig() bool {
+	return !t.noConfig
+}
+
+func (t *SimpleCommand) configured() error {
+	f, ok := t.commandFlags.(Configured)
 	if ok {
 		return f.Configured()
 	}
 	return nil
 }
 
-func (t *SimpleCommand) Usage() *Usage {
-	return &t.U
+func (t *SimpleCommand) usage() *usage {
+	return &t.u
 }

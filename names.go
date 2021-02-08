@@ -15,7 +15,7 @@ func isExported(name string) bool {
 	return false
 }
 
-func CreateFlagName(name string) string {
+func createFlagName(name string) string {
 	var buf strings.Builder
 	lastUpper := true
 	for _, c := range name {
@@ -32,7 +32,7 @@ func CreateFlagName(name string) string {
 	return buf.String()
 }
 
-func Quote(s string) string {
+func quote(s string) string {
 	chars := "\\\""
 	var buf strings.Builder
 	start := 0

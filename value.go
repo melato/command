@@ -31,7 +31,7 @@ func (t *fieldValue) String() string {
 			return `""`
 		}
 	} else if t.isString() {
-		return Quote(s)
+		return quote(s)
 	} else {
 		return s
 	}

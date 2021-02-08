@@ -46,7 +46,7 @@ func (t *App) Configured() error {
 	return nil
 }
 
-func (t *App) PrintFlags() error {
+func (t *App) printFlags() error {
 	fmt.Printf("s: %s\n", t.S)
 	fmt.Printf("b: %v\n", t.B)
 	fmt.Printf("i: %d\n", t.IntFlag)
@@ -65,7 +65,7 @@ func (t *Hello) Init() error {
 }
 
 func (t *Hello) Hello(args []string) error {
-	t.App.PrintFlags()
+	t.App.printFlags()
 	for _, arg := range args {
 		fmt.Printf("%s %s\n", t.Prefix, arg)
 	}
@@ -77,7 +77,7 @@ func main() {
 	app := &App{Sub2: &Sub{"x2", "y2"}}
 	var cmd command.SimpleCommand
 	cmd.Flags(app)
-	cmd.Command("flags").RunMethodE(app.PrintFlags).Short("demonstrate flag processing")
+	cmd.Command("flags").RunMethodE(app.printFlags).Short("demonstrate flag processing")
 	cmd.Command("error").RunMethodE(app.doError).Short("demonstrate error handling")
 
 	hello := &Hello{App: app}

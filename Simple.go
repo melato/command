@@ -135,6 +135,11 @@ func (t *SimpleCommand) commands() map[string]command {
 	return t.subcommands
 }
 
+// AddCommand adds another command as a subcommand.  It returns the sub-command.
+func (t *SimpleCommand) AddCommand(name string, c *SimpleCommand) {
+	t.commands()[name] = c
+}
+
 // Command creates a subcommand and adds it to this command.  It returns the sub-command.
 func (t *SimpleCommand) Command(name string) *SimpleCommand {
 	c := &SimpleCommand{}

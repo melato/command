@@ -250,12 +250,12 @@ func runCommand(name string, cmd command, args []string, ancestors []*commandInf
 
 	if err != nil && err != flag.ErrHelp {
 		fmt.Println(err)
-		exit(1)
+		os.Exit(1)
 	}
 
 	if help {
 		showUsage(ancestors, commands)
-		exit(0)
+		os.Exit(0)
 	}
 
 	args2 := fs.Args()
@@ -266,13 +266,13 @@ func runCommand(name string, cmd command, args []string, ancestors []*commandInf
 			if found {
 				return runCommand(name2, cmd2, args2[1:], ancestors)
 			} else {
-				fmt.Println("no such command:", name2)
+				fmt.Fprintf(os.Stderr, "no such command: %s\n", name2)
 				showUsage(ancestors, commands)
-				exit(1)
+				os.Exit(1)
 			}
 		} else {
 			showUsage(ancestors, commands)
-			exit(0)
+			os.Exit(0)
 		}
 	} else {
 		// call all command-chain Configured() methods just before Run()
@@ -286,25 +286,19 @@ func runCommand(name string, cmd command, args []string, ancestors []*commandInf
 			}
 		}
 		err := cmd.run(args2)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
-		}
 		cleanup(ancestors)
-		if err != nil {
-			exit(1)
-		}
-		return nil
+		return err
 	}
 	return nil
 }
 
 func Main(cmd command) {
 	name := filepath.Base(os.Args[0])
-	runCommand(name, cmd, os.Args[1:], nil)
-}
-
-func exit(code int) {
-	os.Exit(code)
+	err := runCommand(name, cmd, os.Args[1:], nil)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
 func cleanup(commands []*commandInfo) {

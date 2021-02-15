@@ -288,7 +288,7 @@ func runCommand(name string, cmd command, args []string, ancestors []*commandInf
 		}
 		err := cmd.run(args2)
 		cleanup(ancestors)
-		if err.Error() == "" {
+		if err != nil && err.Error() == "" {
 			u := cmd.usage()
 			if u != nil && u.Use != "" {
 				err = errors.New("usage: " + u.Use)

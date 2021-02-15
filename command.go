@@ -1,6 +1,7 @@
 package command
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -287,6 +288,14 @@ func runCommand(name string, cmd command, args []string, ancestors []*commandInf
 		}
 		err := cmd.run(args2)
 		cleanup(ancestors)
+		if err.Error() == "" {
+			u := cmd.usage()
+			if u != nil && u.Use != "" {
+				err = errors.New("usage: " + u.Use)
+			} else {
+				err = errors.New("wrong usage")
+			}
+		}
 		return err
 	}
 	return nil

@@ -65,6 +65,11 @@ func (t *Hello) Init() error {
 }
 
 func (t *Hello) Hello(args []string) error {
+	if len(args) == 0 {
+		// an empty error is a usage error.
+		// Command will replace it with an error that includes the command's Use message, if any, so we don't need to write it twice.
+		return errors.New("")
+	}
 	t.App.printFlags()
 	for _, arg := range args {
 		fmt.Printf("%s %s\n", t.Prefix, arg)
@@ -81,6 +86,6 @@ func main() {
 	cmd.Command("error").RunMethodE(app.doError).Short("demonstrate error handling")
 
 	hello := &Hello{App: app}
-	cmd.Command("hello").Flags(hello).RunMethodArgs(hello.Hello).Short("sub-command with args and additional flags").Use("[arg]...")
+	cmd.Command("hello").Flags(hello).RunMethodArgs(hello.Hello).Short("sub-command with args and additional flags").Use("arg...")
 	command.Main(&cmd)
 }

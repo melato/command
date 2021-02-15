@@ -67,7 +67,7 @@ func (t *Hello) Init() error {
 func (t *Hello) Hello(args []string) error {
 	if len(args) == 0 {
 		// an empty error is a usage error.
-		// Command will replace it with an error that includes the command's Use message, if any, so we don't need to write it twice.
+		// Command will replace an empty error with usage error that includes the command's Use message.
 		return errors.New("")
 	}
 	t.App.printFlags()

@@ -77,6 +77,16 @@ func (t *Hello) Hello(args []string) error {
 	return nil
 }
 
+func (t *App) Two(a, b string) error {
+	fmt.Println("two:", a, b)
+	return nil
+}
+
+func (t *App) OnePlus(a string, b ...string) error {
+	fmt.Println("one+:", a, b)
+	return nil
+}
+
 // main has the only dependency on command.  It can be in a file on its own.
 func main() {
 	app := &App{Sub2: &Sub{"x2", "y2"}}
@@ -87,5 +97,7 @@ func main() {
 
 	hello := &Hello{App: app}
 	cmd.Command("hello").Flags(hello).RunMethodArgs(hello.Hello).Short("sub-command with args and additional flags").Use("arg...")
+	cmd.Command("two").RunFunc(app.Two)
+	cmd.Command("one+").RunFunc(app.OnePlus)
 	command.Main(&cmd)
 }

@@ -57,7 +57,7 @@ func wrapFunc(fn interface{}) func([]string) error {
 			} else {
 				if i < numIn {
 					var found bool
-					parse, found = pm.GetParserT(aType)
+					parse, found = pm.Parser(aType)
 					if !found {
 						return errors.New("no parser for " + aType.String())
 					}

@@ -140,7 +140,7 @@ func extractFlagsV(value reflect.Value, t reflect.Type, prefix *flagPrefix) []*c
 		var cf commandFlag
 		cf.Usage = field.Tag.Get("usage")
 		cf.Prefix = prefix
-		parse, found := pm.GetParserT(pType)
+		parse, found := pm.Parser(pType)
 		if found {
 			if kind == reflect.Slice {
 				sv := newSliceValue(&field, value.Field(i), parse)

@@ -2,8 +2,9 @@ package command
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
+
+	"melato.org/command/reflx"
 )
 
 func isFuncCompatible(fn interface{}) error {
@@ -17,19 +18,6 @@ func isFuncCompatible(fn interface{}) error {
 	// how can we check that the single return value is assignable to error?
 	default:
 		return errors.New("function has more than one output")
-	}
-	numIn := fType.NumIn()
-	stringType := reflect.TypeOf("")
-	for i := 0; i < numIn-1; i++ {
-		if fType.In(i) != stringType {
-			return errors.New(fmt.Sprintf("function input(%d) is not string", i))
-		}
-	}
-	if numIn > 0 {
-		lastType := fType.In(numIn - 1)
-		if lastType != stringType && lastType != reflect.SliceOf(stringType) {
-			return errors.New("last input should be string or []string")
-		}
 	}
 	return nil
 }
@@ -53,8 +41,31 @@ func wrapFunc(fn interface{}) func([]string) error {
 			return errors.New("not enough arguments")
 		}
 		in := make([]reflect.Value, len(args))
+		pm := reflx.NewParserManager()
+		stringType := reflect.TypeOf("")
+		var aType reflect.Type
+		var parse reflx.ParseFunc
 		for i, arg := range args {
-			in[i] = reflect.ValueOf(arg)
+			if i < numIn {
+				aType = fType.In(i)
+			}
+			if i == numIn-1 && fType.IsVariadic() {
+				aType = aType.Elem()
+			}
+			if aType == stringType {
+				in[i] = reflect.ValueOf(arg)
+			} else {
+				if i < numIn {
+					var found bool
+					parse, found = pm.GetParserT(aType)
+					if !found {
+						return errors.New("no parser for " + aType.String())
+					}
+				}
+				value := reflect.Indirect(reflect.New(aType))
+				parse(value, arg)
+				in[i] = value
+			}
 		}
 		result := reflect.ValueOf(fn).Call(in)
 		switch len(result) {

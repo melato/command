@@ -77,13 +77,16 @@ func (t *Hello) Hello(args []string) error {
 	return nil
 }
 
-func (t *App) Two(a, b string) error {
+func (t *App) Two(a, b string) {
 	fmt.Println("two:", a, b)
-	return nil
 }
 
-func (t *App) OnePlus(a string, b ...string) error {
+func (t *App) OnePlus(a string, b ...string) {
 	fmt.Println("one+:", a, b)
+}
+
+func (t *App) Mixed(a string, n int) error {
+	fmt.Printf("a=%s n=%d\n", a, n)
 	return nil
 }
 
@@ -99,5 +102,6 @@ func main() {
 	cmd.Command("hello").Flags(hello).RunMethodArgs(hello.Hello).Short("sub-command with args and additional flags").Use("arg...")
 	cmd.Command("two").RunFunc(app.Two)
 	cmd.Command("one+").RunFunc(app.OnePlus)
+	cmd.Command("mixed").RunFunc(app.Mixed)
 	command.Main(&cmd)
 }

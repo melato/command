@@ -131,8 +131,8 @@ func (t *SimpleCommand) RunMethod(method func()) *SimpleCommand {
 // RunFunc specifies the function to run when executing this command.
 // It is like the RunMethod* methods, but it uses reflection to match the function arguments to the provided arguments.
 // The command arguments are passed to the function.
-// fn must be a function that has only string arguments, if any.  It may be variadic.
-// It must return either 0 values or one value that is assignable to error
+// fn must return either 0 values or one value that is assignable to error
+// It may have any number of arguments of any primitive type (that can be parsed from a string)
 func (t *SimpleCommand) RunFunc(fn interface{}) *SimpleCommand {
 	return t.RunMethodArgs(wrapFunc(fn))
 }

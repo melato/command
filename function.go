@@ -22,6 +22,59 @@ func isFuncCompatible(fn interface{}) error {
 	return nil
 }
 
+func buildInputs(fn interface{}, args []string) ([]reflect.Value, error) {
+	fType := reflect.TypeOf(fn)
+	numIn := fType.NumIn()
+	if numIn == 0 && len(args) > 0 {
+		return nil, errors.New("function takes no arguments")
+	}
+	if !fType.IsVariadic() {
+		if numIn == 1 && fType.In(0) == reflect.TypeOf(args) {
+			// we make an exception for a function that takes a single []string argument
+			return []reflect.Value{reflect.ValueOf(args)}, nil
+		}
+		if numIn != len(args) {
+			return nil, errors.New("wrong number of arguments")
+		}
+	} else {
+		if numIn > len(args)+1 {
+			return nil, errors.New("not enough arguments")
+		}
+	}
+	in := make([]reflect.Value, len(args))
+	pm := reflx.NewParserManager()
+	stringType := reflect.TypeOf("")
+	var aType reflect.Type
+	var parse reflx.ParseFunc
+	for i, arg := range args {
+		if i < numIn {
+			aType = fType.In(i)
+		}
+		if i == numIn-1 && fType.IsVariadic() {
+			aType = aType.Elem()
+		}
+		if aType == stringType {
+			in[i] = reflect.ValueOf(arg)
+		} else {
+			if i < numIn {
+				var found bool
+				parse, found = pm.Parser(aType)
+				if !found {
+					return nil, errors.New("no parser for " + aType.String())
+				}
+			}
+			value := reflect.Indirect(reflect.New(aType))
+			err := parse(value, arg)
+			if err != nil {
+				return nil, err
+			}
+			in[i] = value
+		}
+	}
+	return in, nil
+
+}
+
 // wrap a function so it appears as a func that takes an array of string arguments and returns an error
 // panic if this is not possible (to catch errors early, instead of waiting for the user to invoke this command).
 func wrapFunc(fn interface{}) func([]string) error {
@@ -29,43 +82,9 @@ func wrapFunc(fn interface{}) func([]string) error {
 		panic(err)
 	}
 	return func(args []string) error {
-		fType := reflect.TypeOf(fn)
-		numIn := fType.NumIn()
-		if numIn == 0 && len(args) > 0 {
-			return errors.New("function takes no arguments")
-		}
-		if !fType.IsVariadic() && numIn != len(args) {
-			return errors.New("too many arguments")
-		}
-		if numIn > len(args)+1 {
-			return errors.New("not enough arguments")
-		}
-		in := make([]reflect.Value, len(args))
-		pm := reflx.NewParserManager()
-		stringType := reflect.TypeOf("")
-		var aType reflect.Type
-		var parse reflx.ParseFunc
-		for i, arg := range args {
-			if i < numIn {
-				aType = fType.In(i)
-			}
-			if i == numIn-1 && fType.IsVariadic() {
-				aType = aType.Elem()
-			}
-			if aType == stringType {
-				in[i] = reflect.ValueOf(arg)
-			} else {
-				if i < numIn {
-					var found bool
-					parse, found = pm.Parser(aType)
-					if !found {
-						return errors.New("no parser for " + aType.String())
-					}
-				}
-				value := reflect.Indirect(reflect.New(aType))
-				parse(value, arg)
-				in[i] = value
-			}
+		in, err := buildInputs(fn, args)
+		if err != nil {
+			return err
 		}
 		result := reflect.ValueOf(fn).Call(in)
 		switch len(result) {

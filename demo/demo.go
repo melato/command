@@ -99,9 +99,9 @@ func main() {
 	cmd.Command("error").RunMethodE(app.doError).Short("demonstrate error handling")
 
 	hello := &Hello{App: app}
-	cmd.Command("hello").Flags(hello).RunMethodArgs(hello.Hello).Short("sub-command with args and additional flags").Use("arg...")
+	cmd.Command("hello").Flags(hello).RunFunc(hello.Hello).Short("sub-command with args and additional flags").Use("arg...")
 	cmd.Command("two").RunFunc(app.Two)
 	cmd.Command("one+").RunFunc(app.OnePlus)
-	cmd.Command("mixed").RunFunc(app.Mixed)
+	cmd.Command("mixed").RunFunc(app.Mixed).Short("<string> <int>")
 	command.Main(&cmd)
 }

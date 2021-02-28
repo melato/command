@@ -94,14 +94,16 @@ func (t *App) Mixed(a string, n int) error {
 func main() {
 	app := &App{Sub2: &Sub{"x2", "y2"}}
 	var cmd command.SimpleCommand
-	cmd.Flags(app)
-	cmd.Command("flags").RunMethodE(app.printFlags).Short("demonstrate flag processing")
-	cmd.Command("error").RunMethodE(app.doError).Short("demonstrate error handling")
+	cmd.Flags(app).Short("demonstrate command usage").
+		Long(`This demo shows how to use commands and subcommands that populate struct fields from command line flags
+and execute functions with various signatures.`)
+	cmd.Command("flags").RunFunc(app.printFlags).Short("demonstrate flag processing")
+	cmd.Command("error").RunFunc(app.doError).Short("demonstrate error handling")
 
 	hello := &Hello{App: app}
 	cmd.Command("hello").Flags(hello).RunFunc(hello.Hello).Short("sub-command with args and additional flags").Use("arg...")
-	cmd.Command("two").RunFunc(app.Two)
-	cmd.Command("one+").RunFunc(app.OnePlus)
-	cmd.Command("mixed").RunFunc(app.Mixed).Short("<string> <int>")
+	cmd.Command("two").RunFunc(app.Two).Short("two strings")
+	cmd.Command("one+").RunFunc(app.OnePlus).Short("1+ args").Use("<a> [b]...")
+	cmd.Command("mixed").RunFunc(app.Mixed).Use("<string> <int>").Short("args with mixed types")
 	command.Main(&cmd)
 }

@@ -60,32 +60,32 @@ type Closer interface {
 type SimpleCommand struct {
 	subcommands  map[string]*SimpleCommand
 	runMethod    func([]string) error
-	u            usage
+	Usage            Usage
 	commandFlags interface{} // The argument that was passed to the Flags() method.  This is meant for internal use.
 	noConfig     bool
 }
 
 // A generic representation of the command-line arguments, without any options, e.g. "<arg1> <arg2>"
 func (t *SimpleCommand) Use(commandLineUsage string) *SimpleCommand {
-	t.u.Use = commandLineUsage
+	t.Usage.Use = commandLineUsage
 	return t
 }
 
 // A one-line description of the command, shown in lists of commands
 func (t *SimpleCommand) Short(shortDescription string) *SimpleCommand {
-	t.u.Short = shortDescription
+	t.Usage.Short = shortDescription
 	return t
 }
 
 // A longer description shown in the help for a single command
 func (t *SimpleCommand) Long(longDescription string) *SimpleCommand {
-	t.u.Long = longDescription
+	t.Usage.Long = longDescription
 	return t
 }
 
 // A usage example, shown in the help for a single command.  May be called multiple times to add examples.
 func (t *SimpleCommand) Example(example string) *SimpleCommand {
-	t.u.Examples = append(t.u.Examples, example)
+	t.Usage.Examples = append(t.Usage.Examples, example)
 	return t
 }
 
@@ -137,6 +137,9 @@ func (t *SimpleCommand) RunFunc(fn interface{}) *SimpleCommand {
 	return t.RunMethodArgs(wrapFunc(fn))
 }
 
+// Commands returns the list of subcommands
+// This is not normally needed for adding sub-commands, because sub-commands can be added via Command().
+// Commands is exported for traversing the tree of commands, for documentation, or testing.
 func (t *SimpleCommand) Commands() map[string]*SimpleCommand {
 	if t.subcommands == nil {
 		t.subcommands = make(map[string]*SimpleCommand)
@@ -196,6 +199,6 @@ func (t *SimpleCommand) cleanup() error {
 	return nil
 }
 
-func (t *SimpleCommand) usage() *usage {
-	return &t.u
+func (t *SimpleCommand) usage() *Usage {
+	return &t.Usage
 }

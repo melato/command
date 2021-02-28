@@ -38,34 +38,19 @@ type command interface {
 
 	/** Returns usage information
 	 */
-	usage() *usage
+	usage() *Usage
 
 	flags() interface{}
 
-	/** Return the subcommands.  Flag values have been applied.
-	Configured() may or may not have been called. */
+	// Return the subcommands.  Flag values have been applied.
+	// Configured() may or may not have been called.
 	Commands() map[string]*SimpleCommand
-}
-
-// Usage provides documentation for command.
-type usage struct {
-	// A one-line description of the command, shown in lists of commands
-	Short string
-
-	// A generic representation of the command-line arguments, without any options, e.g. "<arg1> <arg2>"
-	Use string
-
-	// A longer description shown in the help for a single command
-	Long string
-
-	// Examples of command line invocation
-	Examples []string
 }
 
 type commandInfo struct {
 	Name           string
 	Command        command
-	Usage          usage
+	Usage          Usage
 	Flags          []*commandFlag
 	extractedFlags bool
 	FlagSet        *flag.FlagSet

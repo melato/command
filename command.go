@@ -44,22 +44,21 @@ type command interface {
 
 	/** Return the subcommands.  Flag values have been applied.
 	Configured() may or may not have been called. */
-	commands() map[string]command
+	Commands() map[string]*SimpleCommand
 }
 
-/**
-Documentation for the command.
-*/
+// Usage provides documentation for command.
 type usage struct {
-	/** A one-line description of the command, shown in lists of commands */
+	// A one-line description of the command, shown in lists of commands
 	Short string
 
-	/** A generic representation of the command-line arguments, without any options, e.g. "<arg1> <arg2>"  */
+	// A generic representation of the command-line arguments, without any options, e.g. "<arg1> <arg2>"
 	Use string
 
-	/** A longer description shown in the help for a single command */
+	// A longer description shown in the help for a single command
 	Long string
 
+	// Examples of command line invocation
 	Examples []string
 }
 
@@ -152,7 +151,7 @@ func (u *commandInfo) optionsString(i, n int) string {
 	return options
 }
 
-func showUsage(levels []*commandInfo, commands map[string]command) {
+func showUsage(levels []*commandInfo, commands map[string]*SimpleCommand) {
 	var last *commandInfo
 	if len(levels) > 0 {
 		last = levels[len(levels)-1]
@@ -247,7 +246,7 @@ func runCommand(name string, cmd command, args []string, ancestors []*commandInf
 	err = fs.Parse(args)
 
 	ancestors = append(ancestors, ci)
-	var commands map[string]command = cmd.commands()
+	commands := cmd.Commands()
 
 	if err != nil && err != flag.ErrHelp {
 		fmt.Println(err)

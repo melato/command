@@ -58,7 +58,7 @@ type Closer interface {
 //
 // Most methods return the command, so they can be chained together to configure the command.
 type SimpleCommand struct {
-	subcommands  map[string]command
+	subcommands  map[string]*SimpleCommand
 	runMethod    func([]string) error
 	u            usage
 	commandFlags interface{} // The argument that was passed to the Flags() method.  This is meant for internal use.
@@ -137,22 +137,22 @@ func (t *SimpleCommand) RunFunc(fn interface{}) *SimpleCommand {
 	return t.RunMethodArgs(wrapFunc(fn))
 }
 
-func (t *SimpleCommand) commands() map[string]command {
+func (t *SimpleCommand) Commands() map[string]*SimpleCommand {
 	if t.subcommands == nil {
-		t.subcommands = make(map[string]command)
+		t.subcommands = make(map[string]*SimpleCommand)
 	}
 	return t.subcommands
 }
 
 // AddCommand adds another command as a subcommand.  It returns the sub-command.
 func (t *SimpleCommand) AddCommand(name string, c *SimpleCommand) {
-	t.commands()[name] = c
+	t.Commands()[name] = c
 }
 
 // Command creates a subcommand and adds it to this command.  It returns the sub-command.
 func (t *SimpleCommand) Command(name string) *SimpleCommand {
 	c := &SimpleCommand{}
-	t.commands()[name] = c
+	t.Commands()[name] = c
 	return c
 }
 

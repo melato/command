@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"gopkg.in/yaml.v2"
 	"melato.org/command"
 )
 
@@ -58,32 +57,4 @@ func ApplyEnv(cmd *command.SimpleCommand, envVar string) bool {
 		}
 	}
 	return false
-}
-
-// ApplyYaml Extract usage from Yaml data and applies it to the command hierarchy.
-// It prints any errors to stderr.
-func ApplyYaml(cmd *command.SimpleCommand, yamlUsage []byte) bool {
-	var use Usage
-	err := yaml.Unmarshal(yamlUsage, &use)
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		return false
-	}
-	use.Apply(cmd)
-	return true
-}
-
-// Extract copies the usage fields from the command, recursively.
-// It can be used to generate an external usage file from hardcoded usage strings
-func Extract(cmd *command.SimpleCommand) Usage {
-	var u Usage
-	u.Usage = cmd.Usage
-	for name, sub := range cmd.Commands() {
-		if u.Commands == nil {
-			u.Commands = make(map[string]*Usage)
-		}
-		su := Extract(sub)
-		u.Commands[name] = &su
-	}
-	return u
 }

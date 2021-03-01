@@ -1,4 +1,4 @@
-short: demonstrate how to set command usage from an embedded file
+short: demonstrate how to set command usage from an embedded Yaml file
 long: |
   embed.go has a hierarchy of commands, whose usage is specified from
   the file embed.yaml which is embedded into the compiled executable.
@@ -6,10 +6,12 @@ long: |
   It also checks at the environment variable "USAGE_FILE". 
   If this variable contains the path of an existing file,
   embed reads usage data from that file, instead of the embedded file.
-  This way you can refine the command usage
-  by rerunning the program without recompiling it.
+  This way you can refine the command usage by editing the usage file
+  and rerunning the program without recompiling it.
     
-  embed requires Go 1.6.
+  The commands in this demo do nothing, except for the "extract" command.
+
+  embed.go requires Go 1.6.
 commands:
   a:
     short: command a
@@ -27,3 +29,11 @@ commands:
         short: command b3
   c:
     short: command c  
+  extract:
+    short: extract command usage from the command hierarchy to Yaml
+    long: |
+      extract demostrates how you can convert the hardcoded usage from a
+      command hierarchy and represent it in a Yaml file.
+      
+      You can then embed this yaml file in the program
+      and remove hardcoded usage strings.

@@ -1,0 +1,29 @@
+short: demonstrate how to set command usage from an embedded file
+long: |
+  embed.go has a hierarchy of commands, whose usage is specified from
+  the file embed.yaml which is embedded into the compiled executable.
+  
+  It also checks at the environment variable "USAGE_FILE". 
+  If this variable contains the path of an existing file,
+  embed reads usage data from that file, instead of the embedded file.
+  This way you can refine the command usage
+  by rerunning the program without recompiling it.
+    
+  embed requires Go 1.6.
+commands:
+  a:
+    short: command a
+  b:
+    short: sub-commands b
+    commands:
+      b1:
+        short: command b1
+        long: |
+          example sub-command b1
+          with two lines of usage description
+      b2:
+        short: command b2
+      b3:
+        short: command b3
+  c:
+    short: command c  

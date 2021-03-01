@@ -60,7 +60,7 @@ type Closer interface {
 type SimpleCommand struct {
 	subcommands  map[string]*SimpleCommand
 	runMethod    func([]string) error
-	Usage            Usage
+	Usage        Usage
 	commandFlags interface{} // The argument that was passed to the Flags() method.  This is meant for internal use.
 	noConfig     bool
 }
@@ -160,7 +160,12 @@ func (t *SimpleCommand) Command(name string) *SimpleCommand {
 }
 
 func (t *SimpleCommand) run(args []string) error {
-	return t.runMethod(args)
+	if t.runMethod != nil {
+		return t.runMethod(args)
+	}
+	// there is no run method, so we do nothing.
+	// this is used in our demo programs, so we don't want to crash
+	return nil
 }
 
 func (t *SimpleCommand) init() error {

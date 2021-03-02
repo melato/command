@@ -15,9 +15,14 @@ type Usage struct {
 	Commands      map[string]*Usage `yaml:"commands,omitempty"`
 }
 
+type CommandApplicator struct {
+	// Diff warns about differences between usage tree and command tree, to os.Stderr
+	Diff bool
+}
+
 // Apply copies the usage to the command, recursively.
 // Only non-empty fields are copied.
-func (u *Usage) Apply(cmd *command.SimpleCommand) {
+func (t *CommandApplicator) Apply(cmd *command.SimpleCommand, u *Usage) {
 	if u.Short != "" {
 		cmd.Short(u.Short)
 	}
@@ -34,7 +39,17 @@ func (u *Usage) Apply(cmd *command.SimpleCommand) {
 	for name, c := range u.Commands {
 		cmd, found := commands[name]
 		if found {
-			c.Apply(cmd)
+			t.Apply(cmd, c)
+		} else if t.Diff {
+			fmt.Fprintf(os.Stderr, "extraneous usage command: %s\n", name)
+		}
+	}
+	if t.Diff {
+		for name, _ := range cmd.Commands() {
+			_, found := u.Commands[name]
+			if !found {
+				fmt.Fprintf(os.Stderr, "missing usage for command: %s\n", name)
+			}
 		}
 	}
 }
@@ -44,17 +59,19 @@ func (u *Usage) Apply(cmd *command.SimpleCommand) {
 // Returns true if it found usage data without errors.
 // This way you can make changes to the usage data and see how it looks without recompiling.
 // It prints any errors to stderr.
-func ApplyEnv(cmd *command.SimpleCommand, envVar string) bool {
+func ApplyEnv(cmd *command.SimpleCommand, envVar string, fallback []byte) {
 	file, env := os.LookupEnv(envVar)
 	if env {
 		if _, err := os.Stat(file); err == nil {
 			fileContent, err := os.ReadFile(file)
 			if err == nil {
-				ApplyYaml(cmd, fileContent)
-				return true
+				ApplyYaml(func(u Usage) { (&CommandApplicator{Diff: true}).Apply(cmd, &u) }, fileContent)
+				return
 			}
 			fmt.Fprintln(os.Stderr, err)
 		}
 	}
-	return false
+	if len(fallback) > 0 {
+		ApplyYaml(func(u Usage) { (&CommandApplicator{}).Apply(cmd, &u) }, fallback)
+	}
 }

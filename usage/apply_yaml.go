@@ -7,18 +7,17 @@ import (
 	"os"
 
 	"gopkg.in/yaml.v2"
-	"melato.org/command"
 )
 
 // ApplyYaml Extract usage from Yaml data and applies it to the command hierarchy.
 // It prints any errors to stderr.
-func ApplyYaml(cmd *command.SimpleCommand, yamlUsage []byte) bool {
+func ApplyYaml(apply func(Usage), yamlUsage []byte) bool {
 	var use Usage
 	err := yaml.Unmarshal(yamlUsage, &use)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		return false
 	}
-	use.Apply(cmd)
+	apply(use)
 	return true
 }

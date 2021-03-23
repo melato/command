@@ -1,5 +1,3 @@
-// Package usage provides basic utilities for setting command usage from external or embedded files
-// see demo/embed.go for an example
 package usage
 
 import (

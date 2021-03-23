@@ -7,7 +7,7 @@ import (
 )
 
 type Hello struct {
-	Prefix string
+	Prefix string `name:"p" usage:"The greeting"`
 }
 
 // Init is optional.  Used to initialize flags

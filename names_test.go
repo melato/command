@@ -1,15 +1,13 @@
 package command
 
 import (
-	"fmt"
 	"testing"
 )
 
 func assertQuote(t *testing.T, expected, s string) {
 	q := quote(s)
 	if expected != q {
-		fmt.Println("quote failed s=" + s + " Quote(s)=" + q)
-		t.Fail()
+		t.Errorf("quote failed s=%s Quote(s)=%s", s, q)
 	}
 }
 
@@ -25,7 +23,8 @@ func TestFlagName(t *testing.T) {
 }
 
 func TestQuote(t *testing.T) {
-	//assertQuote(t, `""`, "")
-	//assertQuote(t, `"a"`, "a")
+	assertQuote(t, `""`, "")
+	assertQuote(t, `"a"`, "a")
 	assertQuote(t, "\"\\\"\"", "\"")
+	assertQuote(t, `"style=\"{{style%d}}\""`, `style="{{style%d}}"`)
 }

@@ -33,18 +33,19 @@ func createFlagName(name string) string {
 }
 
 func quote(s string) string {
-	chars := "\\\""
+	chars := `\"`
 	var buf strings.Builder
 	start := 0
 	length := len(s)
 	buf.WriteString(`"`)
 	for start < length {
-		i := strings.IndexAny(s[start:], chars)
+		q := s[start:]
+		i := strings.IndexAny(q, chars)
 		if i >= 0 {
-			buf.WriteString(s[start:i])
-			buf.WriteString("\\")
-			buf.WriteString(s[i : i+1])
-			start = i + 1
+			buf.WriteString(q[0:i])
+			buf.WriteString(`\`)
+			buf.WriteString(q[i : i+1])
+			start += i + 1
 		} else {
 			break
 		}

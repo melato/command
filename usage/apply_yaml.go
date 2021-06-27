@@ -13,7 +13,7 @@ func ApplyYaml(apply func(Usage), yamlUsage []byte) bool {
 	var use Usage
 	err := yaml.Unmarshal(yamlUsage, &use)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintf(os.Stderr, "usage: %v\n", err)
 		return false
 	}
 	apply(use)

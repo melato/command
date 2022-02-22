@@ -75,3 +75,9 @@ func ApplyEnv(cmd *command.SimpleCommand, envVar string, fallback []byte) {
 		ApplyYaml(func(u Usage) { (&CommandApplicator{}).Apply(cmd, &u) }, fallback)
 	}
 }
+
+func Apply(cmd *command.SimpleCommand, yamlUsage []byte) {
+	if len(yamlUsage) > 0 {
+		ApplyYaml(func(u Usage) { (&CommandApplicator{}).Apply(cmd, &u) }, yamlUsage)
+	}
+}

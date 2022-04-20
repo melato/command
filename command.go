@@ -251,7 +251,7 @@ func runCommand(name string, cmd command, args []string, ancestors []*commandInf
 			if found {
 				return runCommand(name2, cmd2, args2[1:], ancestors)
 			} else {
-				fmt.Fprintf(os.Stderr, "no such command: %s\n", name2)
+				ErrorPrintf("no such command: %s\n", name2)
 				showUsage(ancestors, commands)
 				os.Exit(1)
 			}
@@ -285,11 +285,15 @@ func runCommand(name string, cmd command, args []string, ancestors []*commandInf
 	return nil
 }
 
+var ErrorPrintf func(format string, args ...interface{}) = func(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, args...)
+}
+
 func Main(cmd command) {
 	name := filepath.Base(os.Args[0])
 	err := runCommand(name, cmd, os.Args[1:], nil)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		ErrorPrintf("%v\n", err)
 		os.Exit(1)
 	}
 }
@@ -297,7 +301,7 @@ func Main(cmd command) {
 func cleanup(commands []*commandInfo) {
 	for j := len(commands) - 1; j >= 0; j-- {
 		if err2 := commands[j].Command.cleanup(); err2 != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err2)
+			ErrorPrintf("%v\n", err2)
 		}
 	}
 }

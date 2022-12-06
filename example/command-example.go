@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 
-	"example.org/example/cli"
+	"example.org/command/cli"
 	"melato.org/command"
 	"melato.org/command/usage"
 )

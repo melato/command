@@ -1,4 +1,4 @@
-module example.org/example
+module example.org/command
 
 go 1.19
 

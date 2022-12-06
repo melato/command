@@ -1,0 +1,13 @@
+short: command examples
+long: |
+  Provides an example of a command-line application.
+commands:
+  format:
+    short: Go formatting
+    commands:
+      float:
+        short: test fmt format strings for float
+        use: <float-value>
+      time:
+        short: test for time.Time.Layout()
+        

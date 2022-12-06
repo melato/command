@@ -28,6 +28,21 @@ commands:
         short: format the current time
   string:
     short: string argument examples
+    commands:
+      join:
+        short: call strings.Join
+        use: "[arg]..."
+      split:
+        short: call strings.Split
+        use: "[arg]"
+      sprintf:
+        short: call fmt.Sprintf
+        use: <format> [arg]...
+        long: |
+          The arguments are all strings, therefore you can only use a format that expects string arguments.
+        examples:
+        - 'string sprintf "%-5s %5s" a b'
+      
   version:
     short: print version
         

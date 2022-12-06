@@ -31,9 +31,10 @@ func main() {
 
 	var str cli.Strings
 	stringCmd := cmd.Command("string")
-	stringCmd.Flags(&str)
-	stringCmd.Command("join").RunFunc(str.Join)
-	stringCmd.Command("split").RunFunc(str.Split)
+	//stringCmd.Flags(&str)
+	stringCmd.Command("join").Flags(&str).RunFunc(str.Join)
+	stringCmd.Command("split").Flags(&str).RunFunc(str.Split)
+	stringCmd.Command("sprintf").RunFunc(str.Sprintf)
 
 	cmd.Command("version").NoConfig().RunFunc(func() { fmt.Printf("%s\n", version) })
 	usage.Apply(&cmd, usageData)

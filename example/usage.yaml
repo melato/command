@@ -1,6 +1,14 @@
 short: command example
 long: |
-  Provides an example of a command-line application.
+  Provides an example of a command-line application,
+  using examples from the Go library.
+  It demonstrates how to use:
+  - scalar flag types: string, int, float64, bool
+  - automatic conversion of string arguments to run method parameters
+  - subcommands (command hierarchy)
+  - run methods with variable number of arguments
+  - command help
+
   Only the main package depends on the command package.
   The code that implements the actual commands is in ./cli/
   Run as follows:
@@ -42,6 +50,17 @@ commands:
           The arguments are all strings, therefore you can only use a format that expects string arguments.
         examples:
         - 'string sprintf "%-5s %5s" a b'
+  regexp:
+    short: regexp examples
+    examples:
+    - "regexp -r '([0-9]+):([0-9]+)' submatch 12:05"
+    commands:
+      split:
+        short: regexp.Regexp.Split
+      find:
+        short: regexp.Regexp.FindAllString
+      submatch:
+        short: regexp.Regexp.FindStringSubmatch
       
   version:
     short: print version

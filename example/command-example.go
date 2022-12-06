@@ -4,8 +4,8 @@ import (
 	_ "embed"
 	"fmt"
 
+	"example.org/example/cli"
 	"melato.org/command"
-	"melato.org/command/example/cli"
 	"melato.org/command/usage"
 )
 
@@ -31,10 +31,16 @@ func main() {
 
 	var str cli.Strings
 	stringCmd := cmd.Command("string")
-	//stringCmd.Flags(&str)
 	stringCmd.Command("join").Flags(&str).RunFunc(str.Join)
 	stringCmd.Command("split").Flags(&str).RunFunc(str.Split)
 	stringCmd.Command("sprintf").RunFunc(str.Sprintf)
+
+	var re cli.Regexp
+	reCmd := cmd.Command("regexp")
+	reCmd.Flags(&re)
+	reCmd.Command("split").RunFunc(re.Split)
+	reCmd.Command("submatch").RunFunc(re.FindStringSubmatch)
+	reCmd.Command("find").RunFunc(re.FindAllString)
 
 	cmd.Command("version").NoConfig().RunFunc(func() { fmt.Printf("%s\n", version) })
 	usage.Apply(&cmd, usageData)

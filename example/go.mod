@@ -1,4 +1,4 @@
-module melato.org/command/example
+module example.org/example
 
 go 1.19
 

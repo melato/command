@@ -2,6 +2,7 @@ package main
 
 import (
 	_ "embed"
+	"fmt"
 
 	"melato.org/command"
 	"melato.org/command/examples/cli"
@@ -10,6 +11,9 @@ import (
 
 //go:embed usage.yaml
 var usageData []byte
+
+//go:embed version
+var version string
 
 func main() {
 	var cmd command.SimpleCommand
@@ -25,6 +29,7 @@ func main() {
 	var add cli.Add
 	cmd.Command("add").RunFunc(add.Float)
 
+	cmd.Command("version").NoConfig().RunFunc(func() { fmt.Printf("%s\n", version) })
 	usage.Apply(&cmd, usageData)
 	command.Main(&cmd)
 }

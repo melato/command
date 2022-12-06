@@ -3,7 +3,8 @@ long: |
   Provides an example of a command-line application.
   Only the main package depends on the command package.
   The code that implements the actual commands is in ./cli/
-  
+examples:
+  - go run command-examples.go format time -n > version  
 commands:
   add:
     short: add two numbers
@@ -19,4 +20,6 @@ commands:
         - format float -f %g 0.3
       time:
         short: format the current time
+  version:
+    short: print version
         

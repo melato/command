@@ -6,7 +6,8 @@ import (
 )
 
 type FormatTime struct {
-	Layout string `usage:"format layout"`
+	NoNewline bool   `name:"n" usage:"do not append newline"`
+	Layout    string `usage:"format layout"`
 }
 
 func (t *FormatTime) Init() error {
@@ -15,6 +16,11 @@ func (t *FormatTime) Init() error {
 }
 
 func (t *FormatTime) Format() error {
-	fmt.Printf("%s\n", time.Now().Format(t.Layout))
+	s := time.Now().Format(t.Layout)
+	if t.NoNewline {
+		fmt.Printf("%s", s)
+	} else {
+		fmt.Printf("%s\n", s)
+	}
 	return nil
 }

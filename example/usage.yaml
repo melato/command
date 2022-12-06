@@ -1,10 +1,14 @@
-short: command examples
+short: command example
 long: |
   Provides an example of a command-line application.
   Only the main package depends on the command package.
   The code that implements the actual commands is in ./cli/
+  Run as follows:
+  - go run command-example.go ...
+  - go install command-example.go
+  - command-example -h
 examples:
-  - go run command-examples.go format time -n > version  
+  - format time -n > version  
 commands:
   add:
     short: add two numbers

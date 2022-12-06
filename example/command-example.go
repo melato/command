@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"melato.org/command"
-	"melato.org/command/examples/cli"
+	"melato.org/command/example/cli"
 	"melato.org/command/usage"
 )
 

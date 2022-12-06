@@ -24,12 +24,3 @@ func (t *Strings) Split(s string) {
 		fmt.Printf("%s\n", part)
 	}
 }
-
-func (t *Strings) Sprintf(format string, args ...string) {
-	vargs := make([]any, len(args))
-	for i, arg := range args {
-		vargs[i] = arg
-	}
-	s := fmt.Sprintf(format, vargs...)
-	fmt.Printf("%s\n", s)
-}

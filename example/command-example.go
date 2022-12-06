@@ -33,7 +33,9 @@ func main() {
 	stringCmd := cmd.Command("string")
 	stringCmd.Command("join").Flags(&str).RunFunc(str.Join)
 	stringCmd.Command("split").Flags(&str).RunFunc(str.Split)
-	stringCmd.Command("sprintf").RunFunc(str.Sprintf)
+
+	var sprintf cli.Sprintf
+	cmd.Command("sprintf").Flags(&sprintf).RunFunc(sprintf.Sprintf)
 
 	var re cli.Regexp
 	reCmd := cmd.Command("regexp")

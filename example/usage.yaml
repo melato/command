@@ -43,13 +43,14 @@ commands:
       split:
         short: call strings.Split
         use: "[arg]"
-      sprintf:
-        short: call fmt.Sprintf
-        use: <format> [arg]...
-        long: |
-          The arguments are all strings, therefore you can only use a format that expects string arguments.
-        examples:
-        - 'string sprintf "%-5s %5s" a b'
+  sprintf:
+    short: fmt.Sprintf
+    long: call fmt.Sprintf with command line arguments
+    use: <format> [arg]...
+    long: |
+      The arguments are all strings, therefore you can only use a format that expects string arguments.
+    examples:
+    - 'sprintf "%-5s %5s" a b'
   regexp:
     short: regexp examples
     examples:

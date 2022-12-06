@@ -5,34 +5,37 @@ import (
 	"strings"
 )
 
-// Init  is called before any other method, as a constructor.
-//
-// It typically sets default values for flags, which are also shown in the usage help.
-//
-// If it returns an error, the command is not run, and the error is reported as the program's error.
+// Init is an optional interface for flags objects.
+// See SimpleCommand.Flags
 type Init interface {
+	// Init  is called before any other method, as a constructor.
+	//
+	// It typically sets default values for flags, which are also shown in the usage help.
+	//
+	// If it returns an error, the command is not run, and the error is reported as the program's error.
 	Init() error
 }
 
-// Configured is called just before running the command, after flags have been set.
-//
-// The Configured() methods of any ancestor commands, are called in order, from the root command to the command that is about to run.
-//
-// If Configured() returns an error, the command does not run, and the error is reported as the program's error.
+// Configured is an optional interface for flags objects that have a Configured() method.
+// See SimpleCommand.Flags
 type Configured interface {
+	// Configured is called just before running the command, after flags have been set.
+	//
+	// The Configured() methods of any ancestor commands, are called in order, from the root command to the command that is about to run.
+	//
+	// If it returns an error, the command does not run, and the error is reported as the program's error.
 	Configured() error
 }
 
-// Closer defines a Close() method that is called after the command runs, to do any cleanup.
-//
-// If the flags struct implements Closer, its Close() method will be called.
-//
-// Close will be called even if Configured() or the command return an error.
-//
-// This is meant to be used in situations where a Configured() method creates a temporary file, which should be deleted when the program exits.
-//
+// Closer is an optional interface for flags objects that have a Close() method.
+// See SimpleCommand.Flags
 // Closer is the same interface as io.Closer().
 type Closer interface {
+	// Close is called after the command runs, to do any cleanup.
+	//
+	// Close will be called even if Configured() or the command return an error.
+	//
+	// It is meant to be used in situations where a Configured() method creates a temporary file, which should be deleted when the program exits.
 	Close() error
 }
 
@@ -79,8 +82,8 @@ func (t *SimpleCommand) Example(example string) *SimpleCommand {
 //
 // The struct fields are set with the parsed flags.
 //
-// If the struct implements the Init() or Configured() interfaces,
-// flags.Init() and flags.Configured() are called as specified in the interface documentation.
+// If flags implements the Init, Configured, or Closer interfaces,
+// flags.Init(), flags.Configured(), or flags.Close() are called as specified in the interface documentation.
 func (t *SimpleCommand) Flags(flags interface{}) *SimpleCommand {
 	t.commandFlags = flags
 	return t

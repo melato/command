@@ -6,9 +6,11 @@ long: |
   Run as follows:
   - go run command-example.go ...
   - go install command-example.go
-  - command-example -h
 examples:
+  - -h
   - format time -n > version  
+  - "string -sep : split $PATH"
+  - string join a b c
 commands:
   add:
     short: add two numbers
@@ -24,6 +26,8 @@ commands:
         - format float -f %g 0.3
       time:
         short: format the current time
+  string:
+    short: string argument examples
   version:
     short: print version
         

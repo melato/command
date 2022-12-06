@@ -1,13 +1,20 @@
 short: command examples
 long: |
   Provides an example of a command-line application.
+  Only the main package depends on melato.org/command.
+  The code that implements the commands is in ./cli/
+  and does not depend on the command package
+  
 commands:
   format:
-    short: Go formatting
+    short: test common Go formatting usage
     commands:
       float:
-        short: test fmt format strings for float
-        use: <float-value>
+        short: format float values
+        use: "[float-value]..."
+        examples:
+        - format float -f %g
+        - format float -f %g 0.3
       time:
-        short: test for time.Time.Layout()
+        short: format the current time
         

@@ -6,7 +6,7 @@ import (
 )
 
 type FormatTime struct {
-	Layout string `usage:"layout"`
+	Layout string `usage:"format layout"`
 }
 
 func (t *FormatTime) Init() error {

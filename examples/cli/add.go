@@ -7,6 +7,6 @@ import (
 type Add struct {
 }
 
-func (t *Add) Integers(a, b int) {
-	fmt.Printf("%d\n", a+b)
+func (t *Add) Float(a, b float64) {
+	fmt.Printf("%g\n", a+b)
 }

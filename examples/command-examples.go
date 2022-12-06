@@ -23,7 +23,7 @@ func main() {
 	formatCmd.Command("time").Flags(&formatTime).RunFunc(formatTime.Format)
 
 	var add cli.Add
-	cmd.Command("add").RunFunc(add.Integers)
+	cmd.Command("add").RunFunc(add.Float)
 
 	usage.Apply(&cmd, usageData)
 	command.Main(&cmd)

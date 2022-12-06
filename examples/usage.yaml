@@ -6,8 +6,8 @@ long: |
   
 commands:
   add:
-    short: add two integers
-    use: <i1> <i2>
+    short: add two numbers
+    use: <number1> <number2>
   format:
     short: test a few Go formatting utilities
     commands:

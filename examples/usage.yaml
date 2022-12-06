@@ -1,13 +1,15 @@
 short: command examples
 long: |
   Provides an example of a command-line application.
-  Only the main package depends on melato.org/command.
-  The code that implements the commands is in ./cli/
-  and does not depend on the command package
+  Only the main package depends on the command package.
+  The code that implements the actual commands is in ./cli/
   
 commands:
+  add:
+    short: add two integers
+    use: <i1> <i2>
   format:
-    short: test common Go formatting usage
+    short: test a few Go formatting utilities
     commands:
       float:
         short: format float values

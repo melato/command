@@ -22,6 +22,9 @@ func main() {
 	var formatTime cli.FormatTime
 	formatCmd.Command("time").Flags(&formatTime).RunFunc(formatTime.Format)
 
+	var add cli.Add
+	cmd.Command("add").RunFunc(add.Integers)
+
 	usage.Apply(&cmd, usageData)
 	command.Main(&cmd)
 }

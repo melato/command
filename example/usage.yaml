@@ -45,12 +45,16 @@ commands:
         use: "[arg]"
   sprintf:
     short: fmt.Sprintf
-    long: call fmt.Sprintf with command line arguments
+    long: |
+      call fmt.Sprintf with command line arguments
     use: <format> [arg]...
     long: |
-      The arguments are all strings, therefore you can only use a format that expects string arguments.
+      Argument [i] can be converted to int64 or float64, using convertion flags [i]
+      conversion flag[i] specifies the type of argument [i]
     examples:
     - 'sprintf "%-5s %5s" a b'
+    - 'sprintf -c f %0.1f 3.14'
+    - sprintf -c if  '%0.*f' 1 3.14
   regexp:
     short: regexp examples
     examples:

@@ -1,0 +1,13 @@
+short: demonstrate command functions of various signatures
+commands:
+  mixed:
+    short: args with mixed types
+    use: <string> <int>
+  error:
+    short: demonstrate error handling
+  strings:
+    short: variable string arguments
+    use: "[string]..."
+  floats:
+    short: variable float arguments
+    use: "[float]..."

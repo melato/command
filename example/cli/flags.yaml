@@ -1,0 +1,22 @@
+short: various capabilities
+long: |-
+  This command demonstrates how to use flags of various types.
+commands:
+  error:
+    short: demonstrate error handling
+  flags:
+    short: demonstrate flag processing
+  sub:
+    short: sub-command with args and additional flags
+    use: arg...
+  mixed:
+    short: args with mixed types
+    use: <string> <int>
+  one+:
+    short: 1+ args
+    use: <a> [b]...
+  two:
+    short: two strings
+  usage:
+    short: ""
+

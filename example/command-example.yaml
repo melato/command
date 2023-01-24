@@ -1,0 +1,79 @@
+short: command example
+long: |
+  Provides an example of a command-line application,
+  using examples from the Go library.
+  It demonstrates how to use:
+  - scalar flag types: string, int, float64, bool
+  - automatic conversion of string arguments to run method parameters
+  - subcommands (command hierarchy)
+  - run methods with variable number of arguments
+  - command help
+
+  The code that implements the actual commands is in ./cli/
+  It does not depend on the command package.
+  Only the main package depends on the command package.
+  Run as follows:
+  - go run command-example.go ...
+  - go install command-example.go
+examples:
+  - -h
+  - format time -n > version  
+  - "string -sep : split $PATH"
+  - string join a b c
+commands:
+  add:
+    short: add two numbers
+    use: <number1> <number2>
+    long: |
+      Demonstrates automatic conversion of arguments to the input types of the command function
+  format:
+    short: test a few Go formatting utilities
+    long: |
+      Demonstrates default arguments, variable number of arguments.
+    commands:
+      float:
+        short: format float values
+        use: "[float-value]..."
+        long: |
+          Demonstrates automatic conversion to a varargs type of function.
+        examples:
+        - format float -f %g
+        - format float -f %g 0.3
+      time:
+        short: format the current time
+  string:
+    short: string argument examples
+    commands:
+      join:
+        short: call strings.Join
+        use: "[arg]..."
+      split:
+        short: call strings.Split
+        use: "[arg]"
+  sprintf:
+    short: fmt.Sprintf
+    long: |
+      call fmt.Sprintf with command line arguments
+    use: <format> [arg]...
+    long: |
+      Argument [i] can be converted to int64 or float64, using convertion flags [i]
+      conversion flag[i] specifies the type of argument [i]
+    examples:
+    - 'sprintf "%-5s %5s" a b'
+    - 'sprintf -c f %0.1f 3.14'
+    - sprintf -c if  '%0.*f' 1 3.14
+  regexp:
+    short: regexp examples
+    examples:
+    - "regexp -r '([0-9]+):([0-9]+)' submatch 12:05"
+    commands:
+      split:
+        short: regexp.Regexp.Split
+      find:
+        short: regexp.Regexp.FindAllString
+      submatch:
+        short: regexp.Regexp.FindStringSubmatch
+      
+  version:
+    short: print version
+        

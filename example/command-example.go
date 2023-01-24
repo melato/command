@@ -9,11 +9,39 @@ import (
 	"melato.org/command/usage"
 )
 
-//go:embed usage.yaml
+//go:embed command-example.yaml
 var usageData []byte
+
+//go:embed cli/flags.yaml
+var flagsUsage []byte
+
+//go:embed cli/funcs.yaml
+var funcsUsage []byte
 
 //go:embed version
 var version string
+
+func FlagsCommand() *command.SimpleCommand {
+	app := &cli.Flags{Sub2: &cli.EmbeddedType{"x2", "y2"}}
+	var cmd command.SimpleCommand
+	cmd.Flags(app)
+	cmd.Command("print").RunFunc(app.PrintFlags)
+
+	sub := &cli.AdditionalFlags{Types: app}
+	cmd.Command("sub").Flags(sub).RunFunc(sub.Run)
+	return &cmd
+}
+
+func FuncsCommand() *command.SimpleCommand {
+	var cmd command.SimpleCommand
+	var funcs cli.Funcs
+	cmd.Command("error").RunFunc(funcs.DoError)
+	cmd.Command("strings").RunFunc(funcs.Strings)
+	cmd.Command("floats").RunFunc(funcs.Floats)
+	cmd.Command("mixed").RunFunc(funcs.Mixed)
+	usage.ApplyEnv(&cmd, "USAGE", funcsUsage)
+	return &cmd
+}
 
 func main() {
 	var cmd command.SimpleCommand
@@ -44,6 +72,8 @@ func main() {
 	reCmd.Command("submatch").RunFunc(re.FindStringSubmatch)
 	reCmd.Command("find").RunFunc(re.FindAllString)
 
+	cmd.AddCommand("flags", FlagsCommand())
+	cmd.AddCommand("funcs", FuncsCommand())
 	cmd.Command("version").NoConfig().RunFunc(func() { fmt.Printf("%s\n", version) })
 	usage.Apply(&cmd, usageData)
 	command.Main(&cmd)

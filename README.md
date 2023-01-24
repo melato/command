@@ -1,46 +1,47 @@
-# command
-
 A Go command line interface that uses reflection to define command flags from the exported fields of any user-specified struct.
 
-**Example**
+# Example
 
 ```
 package main
 
 import (
+	_ "embed"
+
 	"fmt"
 
 	"melato.org/command"
+	"melato.org/command/usage"
 )
 
-type Hello struct {
-	Prefix string
+type App struct {
+	S string `name:"s" usage:"example flag"`
 }
 
-// Init is optional.  Used to initialize flags
-func (t *Hello) Init() error {
-	t.Prefix = "hello "
+func (t *App) Init() error {
+	t.S = "hello"
 	return nil
 }
 
-func (t *Hello) Hello(args []string) {
-	for _, name := range args {
-		fmt.Println(t.Prefix + name)
-	}
+func (t *App) Run() {
+	fmt.Printf("s=%s\n", t.S)
 }
+
+//go:embed usage.yaml
+var usageData []byte
 
 func main() {
-	cmd := &command.SimpleCommand{}
-	hello := &Hello{}
-	cmd.Flags(hello).RunFunc(hello.Hello).Use("<name>...").Short("add a greeting to a name")
-	command.Main(cmd)
-}
+	var cmd command.SimpleCommand
 
-# go run hello.go world 
-# go run hello.go -h
-# go run hello.go --prefix "hey " world 
+	var app App
+	cmd.Command("run").Flags(&app).RunFunc(app.Run)
+
+	usage.Apply(&cmd, usageData)
+	command.Main(&cmd)
+}
 ```
-**Features**
+
+# Features
 - A flag can be any primitive Go type, an alias of a primitive type, struct, pointer to struct, slice of primitive type
 - nested commands
 - flag names and usage are specified by go tag comments.  If there are no comments, a default name is used

@@ -9,8 +9,9 @@ long: |
   - run methods with variable number of arguments
   - command help
 
-  Only the main package depends on the command package.
   The code that implements the actual commands is in ./cli/
+  It does not depend on the command package.
+  Only the main package depends on the command package.
   Run as follows:
   - go run command-example.go ...
   - go install command-example.go
@@ -23,12 +24,18 @@ commands:
   add:
     short: add two numbers
     use: <number1> <number2>
+    long: |
+      Demonstrates automatic conversion of arguments to the input types of the command function
   format:
     short: test a few Go formatting utilities
+    long: |
+      Demonstrates default arguments, variable number of arguments.
     commands:
       float:
         short: format float values
         use: "[float-value]..."
+        long: |
+          Demonstrates automatic conversion to a varargs type of function.
         examples:
         - format float -f %g
         - format float -f %g 0.3

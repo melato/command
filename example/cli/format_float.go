@@ -3,7 +3,6 @@ package cli
 import (
 	"fmt"
 	"math"
-	"strconv"
 )
 
 // FormatFloat demonstrates flags and variable arguments
@@ -23,15 +22,11 @@ func (t *FormatFloat) print(v float64) {
 	fmt.Printf("%s\n", s)
 }
 
-func (t *FormatFloat) Format(args []string) error {
-	if len(args) == 0 {
+func (t *FormatFloat) Format(values ...float64) error {
+	if len(values) == 0 {
 		t.print(t.Value)
 	} else {
-		for _, arg := range args {
-			v, err := strconv.ParseFloat(arg, 64)
-			if err != nil {
-				return err
-			}
+		for _, v := range values {
 			t.print(v)
 		}
 	}

@@ -148,7 +148,6 @@ func showUsage(levels []*commandInfo, commands map[string]*SimpleCommand) {
 		}
 		if u.Long != "" {
 			fmt.Println()
-			fmt.Println("Description:")
 			fmt.Println(u.Long)
 		}
 		fmt.Println()

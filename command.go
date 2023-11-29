@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"melato.org/command/internal/util"
 )
 
 /** A Command is a struct type, whose fields are used to specify the CLI flags.
@@ -172,8 +174,18 @@ func showUsage(levels []*commandInfo, commands map[string]*SimpleCommand) {
 		if len(u.Examples) > 0 {
 			fmt.Println()
 			fmt.Println("Examples:")
-			for _, ex := range u.Examples {
-				fmt.Printf("  %s %s\n", levels[0].Name, ex)
+			for i, ex := range u.Examples {
+				if i > 0 {
+					fmt.Println()
+				}
+				lines := util.SplitLines(ex)
+				for i, line := range lines {
+					if i == 0 {
+						fmt.Printf("  %s %s\n", levels[0].Name, line)
+					} else {
+						fmt.Printf("  %s\n", line)
+					}
+				}
 			}
 		}
 	}

@@ -96,6 +96,7 @@ func (t *SimpleCommand) flags() interface{} {
 // Specify the method to run when executing this command.  The command arguments are passed to the method.
 func (t *SimpleCommand) RunMethodArgs(method func([]string) error) *SimpleCommand {
 	t.runMethod = method
+	t.Usage.Use = "arg..."
 	return t
 }
 
@@ -123,7 +124,9 @@ func (t *SimpleCommand) RunMethod(method func()) *SimpleCommand {
 // fn must return either 0 values or one value that is assignable to error
 // It may have any number of arguments of any primitive type (that can be parsed from a string)
 func (t *SimpleCommand) RunFunc(fn interface{}) *SimpleCommand {
-	return t.RunMethodArgs(wrapFunc(fn))
+	t.RunMethodArgs(wrapFunc(fn))
+	t.Usage.Use = funcUsage(fn)
+	return t
 }
 
 // Commands returns the list of subcommands

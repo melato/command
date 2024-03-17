@@ -3,9 +3,24 @@ package command
 import (
 	"errors"
 	"reflect"
+	"strings"
 
 	"melato.org/command/reflx"
 )
+
+func funcUsage(fn interface{}) string {
+	fType := reflect.TypeOf(fn)
+	if fType.Kind() != reflect.Func {
+		return ""
+	}
+	n := fType.NumIn()
+	types := make([]string, n)
+	for i := 0; i < n; i++ {
+		typeName := fType.In(i).String()
+		types[i] = "<" + typeName + ">"
+	}
+	return strings.Join(types, " ")
+}
 
 func isFuncCompatible(fn interface{}) error {
 	fType := reflect.TypeOf(fn)

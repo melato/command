@@ -300,7 +300,7 @@ var ErrorPrintf func(format string, args ...interface{}) = func(format string, a
 	fmt.Fprintf(os.Stderr, format, args...)
 }
 
-func Main(cmd command) {
+func Main(cmd *SimpleCommand) {
 	name := filepath.Base(os.Args[0])
 	err := runCommand(name, cmd, os.Args[1:], nil)
 	if err != nil {

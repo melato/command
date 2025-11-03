@@ -27,9 +27,13 @@ func NewParserManager() ParserManager {
 	mgr.kindParsers[reflect.String] = ParseString
 	mgr.kindParsers[reflect.Int64] = ParseInt
 	mgr.kindParsers[reflect.Int32] = ParseInt
+	mgr.kindParsers[reflect.Int16] = ParseInt
+	mgr.kindParsers[reflect.Int8] = ParseInt
 	mgr.kindParsers[reflect.Int] = ParseInt
 	mgr.kindParsers[reflect.Uint64] = ParseUint
 	mgr.kindParsers[reflect.Uint32] = ParseUint
+	mgr.kindParsers[reflect.Uint16] = ParseUint
+	mgr.kindParsers[reflect.Uint8] = ParseUint
 	mgr.kindParsers[reflect.Uint] = ParseUint
 	mgr.kindParsers[reflect.Float64] = ParseFloat
 	mgr.kindParsers[reflect.Float32] = ParseFloat

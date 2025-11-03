@@ -24,10 +24,15 @@ func (t *Flags) Configured() error {
 	return nil
 }
 
+func addSubcommand(cmd *command.SimpleCommand, name string) {
+	sub := &Flags{Name: name}
+	cmd.Command(name).Flags(sub).RunFunc(sub.Run)
+}
+
 func main() {
-	var cmd command.SimpleCommand
+	cmd := &command.SimpleCommand{}
 	cmd.Flags(&Flags{Name: "top"})
-	sub := &Flags{Name: "sub"}
-	cmd.Command("sub").Flags(sub).RunFunc(sub.Run)
-	command.Main(&cmd)
+	addSubcommand(cmd, "sub1")
+	addSubcommand(cmd, "sub2")
+	command.Main(cmd)
 }
